@@ -7,9 +7,14 @@ use Symfony\Component\Filesystem\Filesystem;
 class AlreadyExtractChecker
 {
     /**
-     * @var int
+     * @var float
      */
-    protected $averageTolerance = 20;
+    protected $maxTolerance = 1.45;
+
+    /**
+     * @var float
+     */
+    protected $minTolerance = 0.1;
 
     /**
      * @var Filesystem
@@ -43,20 +48,15 @@ class AlreadyExtractChecker
             return 2;
         }
 
-        /*
-         * TODO Not Implemented -----------------------------------------------
-         */
-        $archiveSize = $this->archiveFile;
+        $archiveSize = filesize($this->archiveFile);
 
-        $maxSize = "0";
-        $minSize = "1";
+        $maxSize = $archiveSize * $this->maxTolerance;
+        $minSize = $archiveSize - ($archiveSize * $this->minTolerance);
 
         $extractDirSize = $this->getDirectorySize($guessedDirectory);
         if ($extractDirSize < $minSize || $extractDirSize > $maxSize) {
             return 1;
         }
-
-        //---------------------------------------------------------------------
 
         return 0;
     }
@@ -100,20 +100,38 @@ class AlreadyExtractChecker
     }
 
     /**
-     * @return int
+     * @return float
      */
-    protected function getAverageTolerance()
+    public function getMaxTolerance()
     {
-        return $this->averageTolerance;
+        return $this->maxTolerance;
     }
 
     /**
-     * @param int $averageTolerance
+     * @param float $maxTolerance
      * @return AlreadyExtractChecker
      */
-    public function setAverageTolerance($averageTolerance)
+    public function setMaxTolerance($maxTolerance)
     {
-        $this->averageTolerance = $averageTolerance;
+        $this->maxTolerance = $maxTolerance;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getMinTolerance()
+    {
+        return $this->minTolerance;
+    }
+
+    /**
+     * @param float $minTolerance
+     * @return AlreadyExtractChecker
+     */
+    public function setMinTolerance($minTolerance)
+    {
+        $this->minTolerance = $minTolerance;
         return $this;
     }
 }
