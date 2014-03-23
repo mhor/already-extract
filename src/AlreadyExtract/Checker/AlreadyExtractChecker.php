@@ -82,14 +82,6 @@ class AlreadyExtractChecker
     }
 
     /**
-     * @return string
-     */
-    public function getArchiveFile()
-    {
-        return $this->archiveFile;
-    }
-
-    /**
      * @param string $archiveFile
      * @return AlreadyExtractChecker
      */
@@ -100,14 +92,6 @@ class AlreadyExtractChecker
     }
 
     /**
-     * @return float
-     */
-    public function getMaxTolerance()
-    {
-        return $this->maxTolerance;
-    }
-
-    /**
      * @param float $maxTolerance
      * @return AlreadyExtractChecker
      */
@@ -115,14 +99,6 @@ class AlreadyExtractChecker
     {
         $this->maxTolerance = $maxTolerance;
         return $this;
-    }
-
-    /**
-     * @return float
-     */
-    public function getMinTolerance()
-    {
-        return $this->minTolerance;
     }
 
     /**

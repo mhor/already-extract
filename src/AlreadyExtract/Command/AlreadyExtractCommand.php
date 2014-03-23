@@ -14,6 +14,16 @@ use Symfony\Component\Filesystem\Filesystem;
 class AlreadyExtractCommand extends Command
 {
     /**
+     * @var int
+     */
+    protected $countError = 0;
+
+    /**
+     * @var int
+     */
+    protected $countWarning = 0;
+
+    /**
      * @var array
      */
     protected $extensions = array('zip', 'rar');
@@ -56,6 +66,7 @@ class AlreadyExtractCommand extends Command
                 $checker->isAlreadyExtracted()
             );
         }
+        $output->writeln("Warnings: " . $this->countWarning . " Errors: " . $this->countError);
     }
 
     /**
@@ -68,9 +79,11 @@ class AlreadyExtractCommand extends Command
         switch ($level) {
             case 1:
                 $output->writeln("<comment>Warning: file " . $filePath . " looks weird</comment>");
+                $this->countWarning++;
                 break;
             case 2:
                 $output->writeln("<error>Error: file " . $filePath . " might be not extracted</error>");
+                $this->countError++;
                 break;
         }
     }
