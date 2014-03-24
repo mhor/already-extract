@@ -31,7 +31,7 @@ class AlreadyExtractCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('already-exist')
+            ->setName('already-extract')
             ->setDescription('check if archive files are already extracted')
             ->addArgument(
                 'path',

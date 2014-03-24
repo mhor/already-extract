@@ -10,7 +10,7 @@ class Application extends ApplicationBase
 {
     protected function getCommandName(InputInterface $input)
     {
-        return 'already-exist';
+        return 'already-extract';
     }
 
     protected function getDefaultCommands()
