@@ -63,7 +63,7 @@ class AlreadyExtractCommand extends Command
             $this->writeOutput(
                 $file->getRealPath(),
                 $output,
-                $checker->isAlreadyExtracted()
+                $checker->isAlreadyExtracted($path)
             );
         }
         $output->writeln("Warnings: " . $this->countWarning . " Errors: " . $this->countError);

@@ -24,9 +24,8 @@ class AlreadyExtractCommandTest extends \PHPUnit_Framework_TestCase
         $commandTester->execute(array('path' => $this->archivesDir));
         
         $this->assertRegExp('#Error: file (.*)/c.zip might be not extracted#', $commandTester->getDisplay());
-        $this->assertRegExp('#Warning: file (.*)/d.zip looks weird#', $commandTester->getDisplay());
         $this->assertRegExp('#Warning: file (.*)/b.zip looks weird#', $commandTester->getDisplay());
-        $this->assertRegExp('#Warnings: 2 Errors: 1#', $commandTester->getDisplay());
+        $this->assertRegExp('#Warnings: 1 Errors: 1#', $commandTester->getDisplay());
     }
 
     /**

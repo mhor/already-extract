@@ -2,20 +2,11 @@
 
 namespace AlreadyExtract\Checker;
 
+use Alchemy\Zippy\Zippy;
 use Symfony\Component\Filesystem\Filesystem;
 
 class AlreadyExtractChecker
 {
-    /**
-     * @var float
-     */
-    protected $maxTolerance = 1.45;
-
-    /**
-     * @var float
-     */
-    protected $minTolerance = 0.1;
-
     /**
      * @var Filesystem
      */
@@ -27,7 +18,7 @@ class AlreadyExtractChecker
     protected $archiveFile;
 
     /**
-     * @var array
+     * @var string
      */
     protected $extension;
 
@@ -38,47 +29,38 @@ class AlreadyExtractChecker
     }
 
     /**
+     * Return a code to know status
+     *  0 = No problem
+     *  1 = One file on extracted archive maybe corrupted
+     *  2 = One file is not extracted
+     *  3 = Archive can't be open
+     * @param string $path
      * @return int
      */
-    public function isAlreadyExtracted()
+    public function isAlreadyExtracted($path)
     {
-        $guessedDirectory = str_replace($this->extension, '', $this->archiveFile);
-
-        if (!$this->fs->exists($guessedDirectory)) {
-            return 2;
+        $archive = Zippy::load();
+        try {
+            $readArchive = $archive->open($this->archiveFile);
+            $archiveContent = $readArchive->getMembers();
+        } catch (\Exception $e) {
+            return 3;
         }
 
-        $archiveSize = filesize($this->archiveFile);
+        foreach ($archiveContent as $file) {
+            if ($file->isDir()) {
+                continue;
+            }
 
-        $maxSize = $archiveSize * $this->maxTolerance;
-        $minSize = $archiveSize - ($archiveSize * $this->minTolerance);
+            if (!$this->fs->exists($path . $file->getLocation())) {
+                return 2;
+            }
 
-        $extractDirSize = $this->getDirectorySize($guessedDirectory);
-        if ($extractDirSize < $minSize || $extractDirSize > $maxSize) {
-            return 1;
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param string path
-     * @return integer total size in bit of a directory
-     */
-    protected function getDirectorySize($path)
-    {
-        $totalBytes = 0;
-        $path = realpath($path);
-        if ($path!==false) {
-            foreach (
-                new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
-                ) as $object
-            ) {
-                $totalBytes += $object->getSize();
+            if (filesize($path . $file->getLocation()) != $file->getSize()) {
+                return 1;
             }
         }
-        return $totalBytes;
+        return 0;
     }
 
     /**
@@ -88,26 +70,6 @@ class AlreadyExtractChecker
     public function setArchiveFile($archiveFile)
     {
         $this->archiveFile = $archiveFile;
-        return $this;
-    }
-
-    /**
-     * @param float $maxTolerance
-     * @return AlreadyExtractChecker
-     */
-    public function setMaxTolerance($maxTolerance)
-    {
-        $this->maxTolerance = $maxTolerance;
-        return $this;
-    }
-
-    /**
-     * @param float $minTolerance
-     * @return AlreadyExtractChecker
-     */
-    public function setMinTolerance($minTolerance)
-    {
-        $this->minTolerance = $minTolerance;
         return $this;
     }
 }
