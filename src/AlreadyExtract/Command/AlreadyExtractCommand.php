@@ -8,8 +8,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 class AlreadyExtractCommand extends Command
 {
@@ -38,11 +38,21 @@ class AlreadyExtractCommand extends Command
                 InputArgument::OPTIONAL,
                 'path of directory to check'
             )
+            ->addOption(
+                'drop',
+                'd',
+                InputOption::VALUE_NONE,
+                'Drop extracted archives'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $drop = false;
+        if ($input->getOption('drop') !== false) {
+            $drop = true;
+        }
 
         $path = getcwd();
         if ($input->getArgument('path') !== null) {
@@ -60,10 +70,17 @@ class AlreadyExtractCommand extends Command
         $finder->files()->in($path)->name('*.zip')->name('*.rar');
         foreach ($finder as $file) {
             $checker->setArchiveFile($file->getRealPath());
+
+            $result = $checker->isAlreadyExtracted($path);
+
+            if ($result ===  0 && $drop === true) {
+                $fs->remove($file->getRealPath());
+            }
+
             $this->writeOutput(
                 $file->getRealPath(),
                 $output,
-                $checker->isAlreadyExtracted($path)
+                $result
             );
         }
         $output->writeln("Warnings: " . $this->countWarning . " Errors: " . $this->countError);
@@ -74,7 +91,7 @@ class AlreadyExtractCommand extends Command
      * @param string $filePath
      * @param OutputInterface $output
      */
-    protected function writeOutput($filePath, OutputInterface $output, $level=0)
+    protected function writeOutput($filePath, OutputInterface $output, $level = 0)
     {
         switch ($level) {
             case 1:
