@@ -38,6 +38,11 @@ class AlreadyExtractCommand extends Command
                 InputArgument::OPTIONAL,
                 'path of directory to check'
             )
+            ->addArgument(
+                'path-extracted',
+                InputArgument::OPTIONAL,
+                'path to check extracted file'
+            )
             ->addOption(
                 'drop',
                 'd',
@@ -59,9 +64,18 @@ class AlreadyExtractCommand extends Command
             $path = $input->getArgument('path');
         }
 
+        $pathExtracted = $path;
+        if ($input->getArgument('path-extracted') !== null) {
+            $pathExtracted = $input->getArgument('path-extracted');
+        }
+
         $fs = new Filesystem();
         if (!$fs->exists($path)) {
             throw new \Exception('Directory doesn\'t exist');
+        }
+
+        if (!$fs->exists($pathExtracted)) {
+            throw new \Exception('Extracted directory does\'t exist');
         }
 
         $checker = new AlreadyExtractChecker();
@@ -71,7 +85,7 @@ class AlreadyExtractCommand extends Command
         foreach ($finder as $file) {
             $checker->setArchiveFile($file->getRealPath());
 
-            $result = $checker->isAlreadyExtracted($path);
+            $result = $checker->isAlreadyExtracted($pathExtracted);
 
             if ($result ===  0 && $drop === true) {
                 $fs->remove($file->getRealPath());
