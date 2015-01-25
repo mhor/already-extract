@@ -11,7 +11,7 @@ class AlreadyExtractCommandTest extends \PHPUnit_Framework_TestCase
 
     public function __construct()
     {
-        $this->archivesDir = __DIR__ . '/../../testArchive/';
+        $this->archivesDir = __DIR__ . '/../../fixtures/zip/';
     }
 
     public function testIfCommandHaveExpectedBehavior()

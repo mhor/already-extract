@@ -2,37 +2,37 @@
 
 namespace AlreadyExtract\Checker;
 
-class ZipAlreadyExtractCheckerTest extends \PHPUnit_Framework_TestCase
+class RarAlreadyExtractCheckerTest extends \PHPUnit_Framework_TestCase
 {
 
     protected $archivesDir;
 
-    protected $successArchive = 'a.zip';
+    protected $successArchive = 'a.rar';
 
-    protected $warningArchive = 'b.zip';
+    protected $warningArchive = 'b.rar';
 
-    protected $errorArchive = 'c.zip';
+    protected $errorArchive = 'c.rar';
 
     public function __construct()
     {
-        $this->archivesDir = __DIR__ . '/../../fixtures/zip/';
+        $this->archivesDir = __DIR__ . '/../../fixtures/rar/';
     }
 
     public function testSuccessIfArchiveIsAlreadyExtract()
     {
-        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->successArchive);
+        $checker = new RarAlreadyExtractChecker($this->archivesDir . $this->successArchive);
         $this->assertEquals(0, $checker->isAlreadyExtracted($this->archivesDir));
     }
 
     public function testWarningIfExtractedDirectoryIsLowerThanArchive()
     {
-        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->warningArchive);
+        $checker = new RarAlreadyExtractChecker($this->archivesDir . $this->warningArchive);
         $this->assertEquals(1, $checker->isAlreadyExtracted($this->archivesDir));
     }
 
     public function testErrorIfArchiveINotExtract()
     {
-        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->errorArchive);
+        $checker = new RarAlreadyExtractChecker($this->archivesDir . $this->errorArchive);
         $this->assertEquals(2, $checker->isAlreadyExtracted($this->archivesDir));
     }
 }
