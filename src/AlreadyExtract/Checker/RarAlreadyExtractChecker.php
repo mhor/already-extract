@@ -16,6 +16,19 @@ class RarAlreadyExtractChecker implements AlreadyExtractCheckerInterface
      */
     private $minTolerance = 0.1;
 
+    /**
+     * @var \SplFileInfo
+     */
+    private $archiveFile;
+
+    /**
+     * @var Filesystem
+     */
+    private $fs;
+
+    /**
+     * @var array
+     */
     private $extension = array('.rar');
 
     /**
