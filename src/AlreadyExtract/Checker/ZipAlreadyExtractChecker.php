@@ -5,7 +5,7 @@ namespace AlreadyExtract\Checker;
 use Alchemy\Zippy\Zippy;
 use Symfony\Component\Filesystem\Filesystem;
 
-class AlreadyExtractChecker
+class ZipAlreadyExtractChecker implements AlreadyExtractCheckerInterface
 {
     /**
      * @var Filesystem
@@ -18,14 +18,12 @@ class AlreadyExtractChecker
     protected $archiveFile;
 
     /**
-     * @var string
+     * @param $archiveFile
      */
-    protected $extension;
-
-    public function __construct()
+    public function __construct($archiveFile)
     {
+        $this->archiveFile = $archiveFile;
         $this->fs = new Filesystem();
-        $this->extension = array('.rar', '.zip');
     }
 
     /**
@@ -61,16 +59,6 @@ class AlreadyExtractChecker
             }
         }
         return 0;
-    }
-
-    /**
-     * @param string $archiveFile
-     * @return AlreadyExtractChecker
-     */
-    public function setArchiveFile($archiveFile)
-    {
-        $this->archiveFile = $archiveFile;
-        return $this;
     }
 }
  

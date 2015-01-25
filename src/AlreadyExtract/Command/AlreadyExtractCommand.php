@@ -2,7 +2,8 @@
 
 namespace AlreadyExtract\Command;
 
-use AlreadyExtract\Checker\AlreadyExtractChecker;
+use AlreadyExtract\Checker\ZipAlreadyExtractChecker;
+use AlreadyExtract\Factory\AlreadyExtractFactory;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,11 +23,6 @@ class AlreadyExtractCommand extends Command
      * @var int
      */
     protected $countWarning = 0;
-
-    /**
-     * @var array
-     */
-    protected $extensions = array('zip', 'rar');
 
     protected function configure()
     {
@@ -78,12 +74,14 @@ class AlreadyExtractCommand extends Command
             throw new \Exception('Extracted directory does\'t exist');
         }
 
-        $checker = new AlreadyExtractChecker();
-
         $finder = new Finder();
         $finder->files()->in($path)->name('*.zip')->name('*.rar');
         foreach ($finder as $file) {
-            $checker->setArchiveFile($file->getRealPath());
+
+            $checker = AlreadyExtractFactory::create(
+                $file->getRealPath(),
+                $file->getExtension()
+            );
 
             $result = $checker->isAlreadyExtracted($pathExtracted);
 

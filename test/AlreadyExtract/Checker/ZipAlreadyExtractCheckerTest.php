@@ -2,7 +2,7 @@
 
 namespace AlreadyExtract\Checker;
 
-class AlreadyExtractCheckerTest extends \PHPUnit_Framework_TestCase
+class ZipAlreadyExtractCheckerTest extends \PHPUnit_Framework_TestCase
 {
 
     protected $archivesDir;
@@ -20,22 +20,19 @@ class AlreadyExtractCheckerTest extends \PHPUnit_Framework_TestCase
 
     public function testSuccessIfArchiveIsAlreadyExtract()
     {
-        $checker = new AlreadyExtractChecker();
-        $checker->setArchiveFile($this->archivesDir . $this->successArchive);
+        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->successArchive);
         $this->assertEquals(0, $checker->isAlreadyExtracted($this->archivesDir));
     }
 
     public function testWarningIfExtractedDirectoryIsLowerThanArchive()
     {
-        $checker = new AlreadyExtractChecker();
-        $checker->setArchiveFile($this->archivesDir . $this->warningArchive);
+        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->warningArchive);
         $this->assertEquals(1, $checker->isAlreadyExtracted($this->archivesDir));
     }
 
     public function testErrorIfArchiveINotExtract()
     {
-        $checker = new AlreadyExtractChecker();
-        $checker->setArchiveFile($this->archivesDir . $this->errorArchive);
+        $checker = new ZipAlreadyExtractChecker($this->archivesDir . $this->errorArchive);
         $this->assertEquals(2, $checker->isAlreadyExtracted($this->archivesDir));
     }
 }
