@@ -2,7 +2,8 @@
 
 namespace AlreadyExtract\Checker;
 
-use Alchemy\Zippy\Zippy;
+use AlreadyExtract\Utils\ExtractorCommandDecoder\File;
+use AlreadyExtract\Utils\ExtractorCommandDecoder\UnzipCommandDecoder;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ZipAlreadyExtractChecker implements AlreadyExtractCheckerInterface
@@ -37,10 +38,9 @@ class ZipAlreadyExtractChecker implements AlreadyExtractCheckerInterface
      */
     public function isAlreadyExtracted($path)
     {
-        $archive = Zippy::load();
         try {
-            $readArchive = $archive->open($this->archiveFile);
-            $archiveContent = $readArchive->getMembers();
+            /** @var File[] $archiveContent */
+            $archiveContent = (new UnzipCommandDecoder())->getFiles($this->archiveFile);
         } catch (\Exception $e) {
             return 3;
         }
@@ -50,14 +50,15 @@ class ZipAlreadyExtractChecker implements AlreadyExtractCheckerInterface
                 continue;
             }
 
-            if (!$this->fs->exists($path . $file->getLocation())) {
+            if (!$this->fs->exists($path . $file->getPath())) {
                 return 2;
             }
 
-            if (filesize($path . $file->getLocation()) != $file->getSize()) {
+            if (filesize($path . $file->getPath()) != $file->getUnpackedSize()) {
                 return 1;
             }
         }
+
         return 0;
     }
 }

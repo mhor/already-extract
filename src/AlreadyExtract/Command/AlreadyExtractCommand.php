@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class AlreadyExtractCommand extends Command
 {
@@ -18,6 +19,11 @@ class AlreadyExtractCommand extends Command
      * @var int
      */
     protected $countError = 0;
+
+    /**
+     * @var int
+     */
+    protected $countSuccess = 0;
 
     /**
      * @var int
@@ -57,12 +63,12 @@ class AlreadyExtractCommand extends Command
 
         $path = getcwd();
         if ($input->getArgument('path') !== null) {
-            $path = $input->getArgument('path');
+            $path = rtrim($input->getArgument('path'), '/');
         }
 
         $pathExtracted = $path;
         if ($input->getArgument('path-extracted') !== null) {
-            $pathExtracted = $input->getArgument('path-extracted');
+            $pathExtracted = rtrim($input->getArgument('path-extracted'), '/');
         }
 
         $fs = new Filesystem();
@@ -76,15 +82,15 @@ class AlreadyExtractCommand extends Command
 
         $finder = new Finder();
         $finder->files()->in($path)->name('*.zip')->name('*.rar');
-        foreach ($finder as $file) {
 
+        /** @var SplFileInfo $file */
+        foreach ($finder as $file) {
             $checker = AlreadyExtractFactory::create(
                 $file->getRealPath(),
                 $file->getExtension()
             );
 
-            $result = $checker->isAlreadyExtracted($pathExtracted);
-
+            $result = $checker->isAlreadyExtracted($pathExtracted . str_replace($path, '', $file->getPath()) . '/');
             if ($result ===  0 && $drop === true) {
                 $fs->remove($file->getRealPath());
             }
@@ -95,7 +101,7 @@ class AlreadyExtractCommand extends Command
                 $result
             );
         }
-        $output->writeln("Warnings: " . $this->countWarning . " Errors: " . $this->countError);
+        $output->writeln("Success: " . $this->countSuccess . " Warnings: " . $this->countWarning . " Errors: " . $this->countError);
     }
 
     /**
@@ -106,6 +112,10 @@ class AlreadyExtractCommand extends Command
     protected function writeOutput($filePath, OutputInterface $output, $level = 0)
     {
         switch ($level) {
+            case 0:
+                //$output->writeln("<info>Success: file " . $filePath . " is extracted</info>");
+                $this->countSuccess++;
+                break;
             case 1:
                 $output->writeln("<comment>Warning: file " . $filePath . " looks weird</comment>");
                 $this->countWarning++;

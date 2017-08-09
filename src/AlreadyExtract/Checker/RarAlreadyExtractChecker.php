@@ -2,6 +2,8 @@
 
 namespace AlreadyExtract\Checker;
 
+use AlreadyExtract\Utils\ExtractorCommandDecoder\File;
+use AlreadyExtract\Utils\ExtractorCommandDecoder\UnrarCommandDecoder;
 use Symfony\Component\Filesystem\Filesystem;
 
 class RarAlreadyExtractChecker implements AlreadyExtractCheckerInterface
@@ -51,19 +53,29 @@ class RarAlreadyExtractChecker implements AlreadyExtractCheckerInterface
      */
     public function isAlreadyExtracted($path)
     {
-        $archive = \RarArchive::open($this->archiveFile);
-        $entries = $archive->getEntries();
-        foreach ($entries as $entry) {
-            if (!$this->fs->exists($path . $entry->getName())) {
+        try {
+            /** @var File[] $archiveContent */
+            $archiveContent = (new UnrarCommandDecoder())->getFiles($this->archiveFile);
+        } catch (\Exception $e) {
+            return 3;
+        }
+
+        foreach ($archiveContent as $file) {
+            if ($file->isDir()) {
+                continue;
+            }
+
+            if (!$this->fs->exists($path . $file->getPath())) {
                 return 2;
             }
 
-            if (!$entry->isDirectory() &&
-                filesize($path . $entry->getName()) !== $entry->getUnpackedSize()
-            ) {
+
+
+            if (filesize($path . $file->getPath()) != $file->getUnpackedSize()) {
                 return 1;
             }
         }
+
         return 0;
     }
 }
